@@ -1,10 +1,16 @@
+param(
+    $SID,
+    $ADGroup
+)
+
 # Add DOMAIN\sAMAccountName to user attribute
 Import-Module ActiveDirectory
 
 $Domain = (Get-ADDomain).forest
-$ADGroup = Get-ADGroup -Filter {Name -like "*SERVICEDESK*"}
+$ADGroup = Get-ADGroup $ADGroup #-Filter {Name -like "*SERVICEDESK*"}
 
 # Users that are enabled and haven't already been configured with that attribute
+#$AllHumans = Get-ADGroup -Filter {(SID -like $SID)} | Get-ADGroupMember
 $Users = Get-ADUser -Filter {(Enabled -eq 'True') -and (extensionAttribute15 -notlike "*")}
 ForEach ($User in $Users) {
 	Write-Verbose "Changing extensionAttribute15 for the user $($User.sAMAccountName)"
