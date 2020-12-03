@@ -13,6 +13,7 @@ foreach ($CommaDisplayNameUser in $CommaDisplayNameUsers) {
     }
 
     # Changes Display Name
+    Write-Host "Changing display name for user $($CommaDisplayNameUser.samAccountName)"
     Set-ADUser -Identity $CommaDisplayNameUser.samAccountName -Replace $ADUserProperties
 }
 
