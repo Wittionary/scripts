@@ -39,31 +39,58 @@ foreach ($AzContext in $AzContexts)  {
 
     # Get all the web app certs
     $WebAppCertificates = Get-AzWebAppCertificate
-    Write-Verbose "Web app certificate count: $($WebAppCertificates.Count)"
+    Write-Host "Web app certificate count: $($WebAppCertificates.Count)"
 
     # Narrow it down to just expired ones
     $ExpiredCerts = $WebAppCertificates | Where-Object {$_.ExpirationDate -lt (get-date)}
-    Write-Verbose "Expired certificate count: $($ExpiredCerts.Count)"
+    Write-Host "Expired certificate count: $($ExpiredCerts.Count)"
 
     # Narrow it down further to ones we've got the PFX for
     $RelevantCerts = $ExpiredCerts | Where-Object {$_.SubjectName -match $SubjectName}
-    Write-Verbose "Relevant cert thumbprints:`n($RelevantCerts.Thumbprint)"
+    Write-Host "Relevant cert thumbprints:`n($RelevantCerts.Thumbprint)"
 
     # Get all web apps
     $WebApps = Get-AzWebApp
 
     # Iterate through web apps
     foreach ($WebApp in $WebApps) {
-        # Find web app SSL bindings we need to update
-        $WebAppSSLBinding = Get-AzWebAppSSLBinding -ResourceGroupName $WebApp.ResourceGroup -WebAppName $WebApp.Name |
-        Where-Object {$_.Thumbprint -eq $RelevantCerts.Thumbprint}
+        # Compares multiples thumbprints of SSL bindings to thumbprints of relevant certs
+        $ThumbprintsMatch = Compare-Object -ReferenceObject (Get-AzWebAppSSLBinding -ResourceGroupName $WebApp.ResourceGroup -WebAppName $WebApp.Name).Thumbprint `
+        -DifferenceObject ($RelevantCerts.Thumbprint) -IncludeEqual -ExcludeDifferent
 
-        # If found, replace cert/binding
-        if (($null -ne $WebAppSSLBinding) -and ($WebAppSSLBinding -ne "")) {
-            New-AzWebAppSSLBinding -ResourceGroupName rg_nsm_fund1_qa -WebAppName NSMFundingPortalQA `
-            -CertificateFilePath $PfxFilePath `
-            -CertificatePassword $PfxPassword -SslState $WebAppSSLBinding.SslState `
-            -Name $WebAppSSLBinding.Name -Verbose
+        # If there's an overlap in thumbprints, then you have the right object
+        if ($null -ne $ThumbprintsMatch) {
+            # Find web app SSL bindings we need to update
+            $WebAppSSLBindings = Get-AzWebAppSSLBinding -ResourceGroupName $WebApp.ResourceGroup -WebAppName $WebApp.Name
+
+            # If it has at least one binding, continue
+            if (($null -ne $WebAppSSLBindings) -and ($WebAppSSLBindings -ne "")) {
+                # Create a new binding for each existing one
+                Write-Host "Creating new SSL bindings ($($WebAppSSLBindings.Count)) for app `"$($WebApp.RepositorySiteName)`""
+                foreach ($WebAppSSLBinding in $WebAppSSLBindings) {
+                    try {
+                        New-AzWebAppSSLBinding -ResourceGroupName $WebApp.ResourceGroup -WebAppName $WebApp.Name `
+                            -CertificateFilePath $PfxFilePath `
+                            -CertificatePassword $PfxPassword -SslState $WebAppSSLBinding.SslState `
+                            -Name $WebAppSSLBinding.Name -Verbose
+                    } catch {
+                        Write-Error "Web app SSL binding:`n$($WebAppSSLBinding.SslState)"
+                    }
+                }  
+                
+                # Remove expired bindings
+                <#
+                Write-Host "Removing SSL bindings that are expired"
+                foreach ($WebAppSSLBinding in $WebAppSSLBindings) {
+                    try {
+                        Remove-AzWebAppSSLBinding -ResourceGroupName $WebApp.ResourceGroup -WebAppName $WebApp.Name `
+                            -Name $WebAppSSLBinding.Name -Verbose
+                    } catch {
+                        Write-Error "Web app SSL binding:`n$($WebAppSSLBinding.SslState)"
+                    }
+                } 
+                #>
+            }
         }
     }
 }
