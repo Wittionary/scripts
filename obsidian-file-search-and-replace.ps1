@@ -2,7 +2,7 @@
 param (
     $VaultNames = "$($env:git)\obsidian-vaults\notey-notes\",
     $FilenameMatch = "20*-*-*",
-    $LookFor = "\[\[\d{4}-\d{2}-\d{2}\]\]\s\|\s\[\[\d{4}-\d{2}-\d{2}\]\]",
+    $LookFor = "Previous\s\|\sNext-{3,}",
     $ReplaceWith = "",
     $WhatIf = $true
 )
@@ -17,6 +17,30 @@ function Get-DryRunMatches {
         $Filepath
     )
     Get-Content $Filepath | Where-Object { $_ -match $LookFor }
+}
+
+# Return the file size different indicate to user if something might be wrong (i.e. they have a bad search/replace pattern)
+function Get-FileSizeDifference {
+    param(
+        [Parameter(Mandatory = $true)]
+        $OriginalFile,
+        [Parameter(Mandatory = $true)]
+        $ReplacementFile
+    )
+    $OriginalFileSize = Format-FileSize((Get-Item $OriginalFile).length)
+    $ReplacementFileSize = Format-FileSize((Get-Item $ReplacementFile).length)
+    
+    Write-Warning "FILE SIZE DIFFERENCE:`n`tOriginal - $OriginalFileSize`n`tReplacement - $ReplacementFileSize`n`tDifference - $($OriginalFileSize - $ReplacementFileSize)"
+}
+# Ripped off the internet: https://www.spguides.com/check-file-size-using-powershell/
+Function Format-FileSize {
+    Param ([int]$size)
+    If ($size -gt 1TB) {[string]::Format("{0:0.00} TB", $size / 1TB)}
+    ElseIf ($size -gt 1GB) {[string]::Format("{0:0.00} GB", $size / 1GB)}
+    ElseIf ($size -gt 1MB) {[string]::Format("{0:0.00} MB", $size / 1MB)}
+    ElseIf ($size -gt 1KB) {[string]::Format("{0:0.00} kB", $size / 1KB)}
+    ElseIf ($size -gt 0) {[string]::Format("{0:0.00} B", $size)}
+    Else {""}
 }
 
 $FileCandidates = Get-ChildItem -Path "$VaultNames$FilenameMatch" -Recurse
