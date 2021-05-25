@@ -1,7 +1,7 @@
 Set-Location "$env:git\obsidian-vaults\notey-notes\tickets"
 
-$Originals = Get-ChildItem | Where-Object { $_.FullName -notmatch " 1.md" }
-$Duplicates = Get-ChildItem | Where-Object {$_.FullName -match " 1.md"}
+$Originals = Get-ChildItem | Where-Object {($_.FullName -notmatch " 1.md") -and ($_.FullName -notmatch " 2.md")}
+$Duplicates = Get-ChildItem | Where-Object {($_.FullName -match " 1.md") -and ($_.FullName -match " 2.md")}
 
 Write-Host "There are $($Duplicates.Count) duplicates"
 $DuplicatesRemoved = 0
@@ -24,14 +24,15 @@ foreach ($Duplicate in $Duplicates) {
                 $DuplicateContent = Get-Content $Duplicate
                 $EqualContentLines = 0
                 $NotEqualContentLineIndices = @()
-                for ($i = 0; $i -lt $OriginalContent.Count; $i++) {
-                    if ($OriginalContent[$i] -eq $DuplicateContent[$i]) {
-                        $EqualContentLines++
-                    } else {
-                        $NotEqualContentLineIndices += "$i"
+                if ($null -ne $OriginalContent) {
+                    for ($i = 0; $i -lt $OriginalContent.Count; $i++) {
+                        if ($OriginalContent[$i] -eq $DuplicateContent[$i]) {
+                            $EqualContentLines++
+                        } else {
+                            $NotEqualContentLineIndices += "$i"
+                        }
                     }
                 }
-
                 $PercentageMatch = ($EqualContentLines / $OriginalContent.Count)*100
                 Write-Host "----- Lines match: $PercentageMatch%"
                 if ($PercentageMatch -eq 100) {
@@ -39,7 +40,7 @@ foreach ($Duplicate in $Duplicates) {
                     Remove-Item $Duplicate
                     $DuplicatesRemoved++
                 } else {
-                    Write-Host "----- Offending indices: $NotEqualContentLineIndices"
+                    #Write-Host "----- Offending indices: $NotEqualContentLineIndices"
                 }
             }
         }
