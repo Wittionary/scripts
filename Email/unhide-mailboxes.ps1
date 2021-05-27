@@ -6,7 +6,7 @@ param(
 Connect-ExchangeOnline
 
 $AllMailboxes = Get-EXOMailbox -ResultSize Unlimited -PropertySets All
-$HiddenMailboxes = $AllMailboxes | Where {$_.HiddenFromAddressListsEnabled -eq $True}
+$HiddenMailboxes = $AllMailboxes | Where-Object {$_.HiddenFromAddressListsEnabled -eq $True}
 Write-Host "Hidden mailbox count: $($HiddenMailboxes.Count)"
 
 foreach ($HiddenMailbox in $HiddenMailboxes) {
