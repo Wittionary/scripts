@@ -14,7 +14,12 @@ foreach ($Server in $Servers) {
             }
         
             Set-Location $Location
-            New-ItemProperty . -Name "SqlExecTimeout" -Value 60 -propertyType dword
+            try {New-ItemProperty . -Name "SqlExecTimeout" -Value 600 -propertyType dword}
+            catch {Set-ItemProperty . -Name "SqlExecTimeout" -Value 600}
+            try {New-ItemProperty . -Name "SqlLogBackupTimeout" -Value 3600 -propertyType dword}
+            catch {Set-ItemProperty . -Name "SqlLogBackupTimeout" -Value 3600}
+            try {New-ItemProperty . -Name "SqlConnectionTimeout" -Value 300 -propertyType dword}
+            catch {Set-ItemProperty . -Name "SqlConnectionTimeout" -Value 300}
         }
     } -ArgumentList $Locations
     Write-Host "$Server results:`n$Result"
