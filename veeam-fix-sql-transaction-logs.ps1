@@ -7,19 +7,49 @@ $Locations = @("HKLM:\SOFTWARE\Veeam\Veeam Backup and Replication\", "HKLM:\SOFT
 
 foreach ($Server in $Servers) {
     $Result = Invoke-Command -ComputerName $Server -ScriptBlock {
-        foreach ($Location in $args[0]) {
+        foreach ($Location in $args) {
             if (!(Test-Path $Location)) {
                 Write-Host "Creating $Location"
                 New-Item $Location -Force
             }
         
             Set-Location $Location
-            try {New-ItemProperty . -Name "SqlExecTimeout" -Value 600 -propertyType dword}
-            catch {Set-ItemProperty . -Name "SqlExecTimeout" -Value 600}
-            try {New-ItemProperty . -Name "SqlLogBackupTimeout" -Value 3600 -propertyType dword}
-            catch {Set-ItemProperty . -Name "SqlLogBackupTimeout" -Value 3600}
-            try {New-ItemProperty . -Name "SqlConnectionTimeout" -Value 300 -propertyType dword}
-            catch {Set-ItemProperty . -Name "SqlConnectionTimeout" -Value 300}
+            $SqlExecTimeoutValue = 600
+            $SqlLogBackupTimeoutValue = 3600
+            $SqlConnectionTimeoutValue = 300
+
+            if (Get-ItemProperty -Path . -Name "SqlExecTimeout" -ErrorAction SilentlyContinue) {
+                $RegkeyValue = $(Get-ItemProperty -Path . -Name "SqlExecTimeout").SqlExecTimeout
+                if ($RegkeyValue -ne $SqlExecTimeoutValue) {
+                    Set-ItemProperty -Path . -Name "SqlExecTimeout" -Value $SqlExecTimeoutValue
+                } else {
+                    Write-Host "Value of $RegkeyValue is okay in $Location"
+                }
+            } else {
+                New-ItemProperty -Path . -Name "SqlExecTimeout" -Value $SqlExecTimeoutValue -propertyType dword
+            }
+            
+            if (Get-ItemProperty -Path . -Name "SqlLogBackupTimeout" -ErrorAction SilentlyContinue) {
+                $RegkeyValue = $(Get-ItemProperty -Path . -Name "SqlLogBackupTimeout").SqlLogBackupTimeout
+                if ($RegkeyValue -ne $SqlLogBackupTimeoutValue) {
+                    Set-ItemProperty -Path . -Name "SqlLogBackupTimeout" -Value $SqlLogBackupTimeoutValue
+                } else {
+                    Write-Host "Value of $RegkeyValue is okay in $Location"
+                }
+            } else {
+                New-ItemProperty -Path . -Name "SqlLogBackupTimeout" -Value $SqlLogBackupTimeoutValue -propertyType dword
+            }
+            
+            if (Get-ItemProperty -Path . -Name "SqlConnectionTimeout" -ErrorAction SilentlyContinue) {
+                $RegkeyValue = $(Get-ItemProperty -Path . -Name "SqlConnectionTimeout").SqlConnectionTimeout
+                if ($RegkeyValue -ne $SqlConnectionTimeoutValue) {
+                    Set-ItemProperty -Path . -Name "SqlConnectionTimeout" -Value $SqlConnectionTimeoutValue
+                } else {
+                    Write-Host "Value of $RegkeyValue is okay in $Location"
+                }
+            } else {
+                New-ItemProperty -Path . -Name "SqlConnectionTimeout" -Value $SqlConnectionTimeoutValue -propertyType dword
+            }
         }
     } -ArgumentList $Locations
     Write-Host "$Server results:`n$Result"
