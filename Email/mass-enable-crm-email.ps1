@@ -3,7 +3,7 @@ param(
     $UserAddresses = @(),
 
     [Parameter(Mandatory = $true)]
-    [SecureString]$PvlCreds
+    $PvlCreds
 )
 
 Install-Module Microsoft.Xrm.Data.Powershell
@@ -15,7 +15,7 @@ Import-Module Microsoft.Xrm.Data.Powershell
 function Enable-xCRMMailbox {
 
     <#
-.DESCRIPTION
+    .DESCRIPTION
     Connects to the Microsoft CRM Instance and searches for the user specified, approving the email address for the user.
     Finds the associated mailbox and enables it.
 
@@ -34,11 +34,11 @@ function Enable-xCRMMailbox {
     Address Approved : Approved
     Mailbox Enabled  : Yes
 
-.EXAMPLE
+    .EXAMPLE
 
     Enable-xCRMMailbox -Mailbox user@contoso.com -CRMURL "https://contoso.crm6.dynamics.com"
 
-.NOTES
+    .NOTES
     AUTHOR   : Andrew Beaumont
     DATE     : 2018-04-11 10:36
     MODIFIED : 2018-04-11 14:38
