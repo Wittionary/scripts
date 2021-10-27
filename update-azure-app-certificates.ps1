@@ -36,6 +36,7 @@ if ($AllSubscriptions) {
 
 foreach ($AzContext in $AzContexts)  {
     Set-AzContext -Subscription $AzContext.Subscription
+    Write-Host "Context is $($AzContext.Name) ------------------------"
 
     # Get all the web app certs
     $WebAppCertificates = Get-AzWebAppCertificate
@@ -47,16 +48,17 @@ foreach ($AzContext in $AzContexts)  {
 
     # Narrow it down further to ones we've got the PFX for
     $RelevantCerts = $ExpiredCerts | Where-Object {$_.SubjectName -match $SubjectName}
-    Write-Host "Relevant cert thumbprints:`n($RelevantCerts.Thumbprint)"
+    Write-Host "Relevant cert thumbprints:`n$($RelevantCerts.Thumbprint)"
 
     # Get all web apps
     $WebApps = Get-AzWebApp
+    Write-Host "Web apps: $($WebApps.Count)"
 
     # Iterate through web apps
     foreach ($WebApp in $WebApps) {
         # Compares multiples thumbprints of SSL bindings to thumbprints of relevant certs
-        $ThumbprintsMatch = Compare-Object -ReferenceObject (Get-AzWebAppSSLBinding -ResourceGroupName $WebApp.ResourceGroup -WebAppName $WebApp.Name).Thumbprint `
-        -DifferenceObject ($RelevantCerts.Thumbprint) -IncludeEqual -ExcludeDifferent
+        $ThumbprintsMatch = Compare-Object -ReferenceObject $(Get-AzWebAppSSLBinding -ResourceGroupName $WebApp.ResourceGroup -WebAppName $WebApp.Name).Thumbprint `
+        -DifferenceObject $($RelevantCerts.Thumbprint) -IncludeEqual -ExcludeDifferent -ErrorAction SilentlyContinue
 
         # If there's an overlap in thumbprints, then you have the right object
         if ($null -ne $ThumbprintsMatch) {
