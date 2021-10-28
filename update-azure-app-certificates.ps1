@@ -48,7 +48,10 @@ foreach ($AzContext in $AzContexts)  {
 
     # Narrow it down further to ones we've got the PFX for
     $RelevantCerts = $ExpiredCerts | Where-Object {$_.SubjectName -match $SubjectName}
-    Write-Host "Relevant cert thumbprints:`n$($RelevantCerts.Thumbprint)"
+    Write-Host "Relevant certificate count: $($RelevantCerts.Count)"
+    if ($RelevantCerts.Count -gt 0) {
+        Write-Host "Relevant cert thumbprints:`n$($RelevantCerts.Thumbprint)"
+    }
 
     # Get all web apps
     $WebApps = Get-AzWebApp
