@@ -1,5 +1,5 @@
 Param (
-    $SearchString = "adfs01.domain.tld"
+    $SearchString = "adfs01.domain.tld" # FQDN
 )
 
 Connect-AzureAd

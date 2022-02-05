@@ -1,5 +1,5 @@
 # DESCRIPTION:
-# Deploy a VM to Hyper-V 
+# Deploy a virtual machine to Hyper-V 
 
 # DOCS:
 # https://docs.microsoft.com/en-us/windows-server/virtualization/hyper-v/get-started/create-a-virtual-machine-in-hyper-v
