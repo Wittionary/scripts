@@ -1,7 +1,7 @@
 param (
     $BucketName = "witt-test-cf-templates",
-    $StackName = "witt-test-02-15-1311",
-    $S3Object = "prod-vpc.yml",
+    $StackName = "routing",
+    $S3Object = "routing.yml",
     $DefaultRegion = "us-west-1"
 )
 # Update yaml file
@@ -17,6 +17,10 @@ Write-S3Object -BucketName $BucketName -File "$Env:git\pg\pts-witt-scratchpad\ca
 # Update (or create) CloudFormation stack
 try {
     $CurrentStack = Get-CFNStack -StackName $StackName -Region $DefaultRegion
+    if ($CurrentStack.StackStatus -eq "ROLLBACK_COMPLETE") {
+        # stack was created but never successful, just delete it
+        Remove-CFNStack -StackName $StackName -Region $DefaultRegion
+    }
 } catch { # ErrorAction isn't supported by AWS pwsh so try-catch is needed
     $CurrentStack = $null
 }
