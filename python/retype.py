@@ -6,24 +6,42 @@ import sys
 import pyautogui
 import hashlib
 from os.path import exists
+from tkinter import Tk
 
-FilePath = sys.argv[1]
-FileExists = exists(FilePath)
-if not FileExists:
-    exit("A valid file was not found. Verify the file path.")
+try:
+    UsingClipboard = False
+    FilePath = sys.argv[1]
+    FileExists = exists(FilePath)
+    if not FileExists:
+        exit("A valid file was not found. Verify the file path.")
 
-# Ensure the file you end with is the same as the one you start with
-with open(FilePath, "rb") as FileObject:
-    bytes = FileObject.read()
-    filehash = hashlib.md5(bytes).hexdigest()
+    # Ensure the file you end with is the same as the one you start with
+    with open(FilePath, "rb") as FileObject:
+        bytes = FileObject.read()
+        filehash = hashlib.md5(bytes).hexdigest()
 
-print(f"File: {FilePath}")
+except:
+    UsingClipboard = True
+    print("Trying clipboard contents.")
+    clipboard = Tk().clipboard_get()
+    
+
+if UsingClipboard:
+    print(f"Clipboard: {clipboard[0:15]}...")
+else:
+    print(f"File: {FilePath}")
+
 print("Waiting for user to select text field to type in...")
 print("Starting in ", end='')
 pyautogui.countdown(10)
-with open(FilePath) as FileObject:
-    for Line in FileObject:
-        print(f"Typing: {Line}")
-        pyautogui.write(Line, 0.001)
 
-print(f"Typing complete. Ensure the hash of the destination file matches the following\nmd5 hash: {filehash}")
+if UsingClipboard:
+    pyautogui.write(clipboard, 0.001)
+else:
+    with open(FilePath) as FileObject:
+        for Line in FileObject:
+            print(f"Typing: {Line}")
+            pyautogui.write(Line, 0.001)
+            print(f"Ensure the hash of the destination file matches the following\nmd5 hash: {filehash}")
+
+print("Typing complete.")
