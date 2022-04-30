@@ -182,6 +182,7 @@ function Eject-UsbDrive {
 ManualSteps-Preamble
 Prepare-Device
 Image-Device
+Start-Sleep -Seconds 3
 
 # After write is complete, open file explorer to the USB device that's mounted named HypriotOS and customize user-data file
 Setup-Userdata
