@@ -1,6 +1,6 @@
 # Medium Watauga
 $Url = 'https://appalachiangearcompany.com/collections/mens/products/mens-all-paca-fleece-hoodie?variant=37641607807174'
-$Response = curl $Url
+$Response = Invoke-WebRequest $Url
 
 foreach ($Line in $Response) {
     if ($null -ne ($Line | Where-Object { $_ -match 'Medium / Watauga' })) {
@@ -11,6 +11,8 @@ foreach ($Line in $Response) {
 if ($Availability -notmatch "Sold Out") {
     Write-Host "Item is in stock! Sending text message."
     Send-TwilioSMS
+} else {
+    Write-Host "Item not in stock"
 }
 
 function Send-TwilioSMS {
@@ -31,6 +33,6 @@ function Send-TwilioSMS {
 
     # Make API request, selecting JSON properties from response
     Invoke-WebRequest $url -Method Post -Credential $credential -Body $params -UseBasicParsing |
-    ConvertFrom-Json | Select sid, body
+    ConvertFrom-Json | Select-Object sid, body
 
 }
