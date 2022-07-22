@@ -37,7 +37,10 @@ def run(name, id):
 def get_time():
     now = datetime.now()
     return now
+
 # store time
+# https://betterprogramming.pub/lightweight-efficient-database-alternatives-for-python-bb990eee752
+
 # get delta
 def get_time_delta(then):
     delta = datetime.now() - then
