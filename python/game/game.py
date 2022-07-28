@@ -4,7 +4,7 @@
 # - get time delta
 # show progress in terminal
 
-import os, click
+import os, click, tinydb
 from datetime import datetime, date
 
 # VERBS?
@@ -40,6 +40,10 @@ def get_time():
 
 # store time
 # https://betterprogramming.pub/lightweight-efficient-database-alternatives-for-python-bb990eee752
+db = tinydb.TinyDB("database.json")
+def store_time(time):
+    db.insert({'time':f"{time}"})
+    print(db.all())
 
 # get delta
 def get_time_delta(then):
@@ -51,10 +55,7 @@ def get_time_delta(then):
 
 
 cli.add_command(run)
-cli.add_command(hello)
-cli.add_command(auth)
 
-cli.add_command(template_command)
 
 if __name__ == '__main__':
     cli()
