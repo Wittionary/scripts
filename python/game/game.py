@@ -50,6 +50,8 @@ def get_time_delta(then):
     delta = datetime.now() - then
     return delta
 
+def init_env_vars():
+    os.environ["CLICKERS"] = 1
 
 
 
