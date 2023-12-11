@@ -1,3 +1,6 @@
+# DESCRIPTION:
+# Example script I wrote for @arvn in the Obsidian Member Group Discord server
+
 $Filepath = "C:\users\me\file.md"
 $OriginalText = Get-Content $Filepath
 # $OriginalText = "I wo write th on t tablet

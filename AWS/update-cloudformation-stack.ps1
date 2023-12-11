@@ -1,3 +1,7 @@
+# DESCRIPTION:
+# Used for "deploying" an updated AWS Cloud Formation template
+# accounting for error states and edge cases
+
 param (
     $BucketName = "witt-test-cf-templates",
     $StackName = "routing",

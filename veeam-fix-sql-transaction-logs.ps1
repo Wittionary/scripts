@@ -1,3 +1,4 @@
+# DESCRIPTION:
 # Fixes transaction logs not truncating per KB https://www.veeam.com/kb2027
 param (
     [Array]

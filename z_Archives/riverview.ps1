@@ -1,3 +1,6 @@
+# DESCRIPTION:
+# Used for Riverview merger/acquisition
+
 # SMB share where the apps are located
 $AppPath = '\\servername\Share$\Apps'
 

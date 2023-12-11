@@ -1,3 +1,6 @@
+# DESCRIPTION:
+# Used to flash Turing Pi compute modules quickly
+
 param (
     [Parameter(Mandatory=$true)]
     [String]

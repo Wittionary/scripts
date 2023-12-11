@@ -1,3 +1,6 @@
+# DESCRIPTION:
+# Check the Appalachian Gear Company website for a particular item in stock
+
 # Medium Watauga
 $Url = 'https://appalachiangearcompany.com/collections/mens/products/mens-all-paca-fleece-hoodie?variant=37641607807174'
 $Response = Invoke-WebRequest $Url
