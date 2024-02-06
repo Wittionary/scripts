@@ -33,7 +33,7 @@ else:
 
 print("Waiting for user to select text field to type in...")
 print("Starting in ", end='')
-pyautogui.countdown(10)
+pyautogui.countdown(5)
 
 if UsingClipboard:
     pyautogui.write(clipboard, 0.001)
