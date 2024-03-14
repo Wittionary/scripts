@@ -1,4 +1,4 @@
-param($vSphereServer,$vSphereAdmin,$CredentialPath)
+param($vSphereServer,$vSphereAdmin,$CredentialPath,$LocalDomain)
 Install-Module vmware.powercli
 Import-Module vmware.powercli
 Set-PowerCLIConfiguration -scope User -participateinCEIP $false -InvalidCertificateAction Ignore -Confirm:$false
@@ -22,15 +22,16 @@ function Renew-VMHostVMCACertificate {
     $_this.CertMgrRefreshCertificates_Task($hostParam)
 }
 
-if ($vSphereAdmin -match "wnsm.local") {
+# Format username to include the local domain if it doesn't already
+if ($vSphereAdmin -match $LocalDomain) {
     $vSphereUsername = $vSphereAdmin
 } else {
-    $vSphereUsername = "$($vSphereAdmin)@wnsm.local"
+    $vSphereUsername = "$($vSphereAdmin)@$LocalDomain"
 }
 
-#Get-Content "\\tpn-702-adm01.wnsm.local\e$\creds\$($vSphereAdmin).txt"
 $vSpherePassword = Get-Content $CredentialPath | ConvertTo-SecureString
 $vSphereCreds = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $vSphereUsername, $vSpherePassword
 
+Write-Host "Connecting as $vSphereUsername..."
 Connect-VIServer -Server $vSphereServer -Credential $vSphereCreds
 Renew-VMHostVMCACertificate
