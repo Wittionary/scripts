@@ -16,7 +16,7 @@ param (
 
     $UserdataFilepath = "E:\user-data",
     $RPiImagerInstallPath = "C:\Program Files (x86)\Raspberry Pi Imager",
-    $ImagePath = "D:\Witt\Downloads\hypriotos-rpi-v1.12.3.img\hypriotos-rpi-v1.12.3.img",
+    $ImagePath = "C:\Users\qwert\Downloads\hypriotos-rpi-v1.12.3.img\hypriotos-rpi-v1.12.3.img",
     $DestinationDrive = "\\.\PhysicalDrive3"
 )
 $WorkingDir = (Get-Location).Path
