@@ -1,6 +1,15 @@
 # DESCRIPTION:
 # Used to flash Turing Pi compute modules quickly
 
+# DEPENDENCIES:
+# - Raspberry Pi Imager
+# - Raspberry Pi usbboot
+
+# REQUIREMENTS:
+# - Read these [docs](https://docs.turingpi.com/docs/turing-pi1-flashing-compute-modules)
+# - Download a .img you want
+# - Plug micro USB cable into the flash port
+
 param (
     [Parameter(Mandatory=$true)]
     [String]
@@ -14,12 +23,25 @@ param (
 
     $Timezone = "America/Chicago",
 
-    $UserdataFilepath = "E:\user-data",
+    [ValidateScript({Test-Path $_})]
+    $UserdataFilepath = "D:\user-data",
+
+    [ValidateScript({Test-Path $_})]
     $RPiImagerInstallPath = "C:\Program Files (x86)\Raspberry Pi Imager",
+
+    [ValidateScript({Test-Path $_})]
+    $RPiBootInstallPath = "C:\Program Files (x86)\Raspberry Pi",
+
+    [ValidateScript({Test-Path $_})]
     $ImagePath = "C:\Users\qwert\Downloads\hypriotos-rpi-v1.12.3.img\hypriotos-rpi-v1.12.3.img",
-    $DestinationDrive = "\\.\PhysicalDrive3"
+    $DestinationDrive = "\\.\PhysicalDrive1",
+
+    [switch]
+    # Beeps can be helpful for an unattended/background terminal
+    $Mute = $false
+
+    
 )
-$WorkingDir = (Get-Location).Path
 
 function Setup-Userdata {
   $TempFilename = "$WorkingDir\temp-user-data"
@@ -111,6 +133,9 @@ runcmd:
     $null = Read-Host "when the file is in place"
     $null = Read-Host "Are you sure?"
   }
+
+  # Cleanup before exit
+  Remove-Item $TempFilename
 }
 
 function Prepare-Device {
@@ -128,17 +153,23 @@ function Prepare-Device {
     }
   }
   # Once that's done setting up, run rpiboot from elevated prompt
+  # Download: https://github.com/raspberrypi/usbboot/releases
+  # Extract zip
+  # Run rpiboot_setup.exe [link](https://github.com/raspberrypi/usbboot/blob/master/win32/rpiboot_setup.exe)
   Write-Host "Waiting " -ForegroundColor Yellow -NoNewline
   Write-Host "for rpiboot process to complete..."
-  & "D:\Program Files (x86)\Raspberry Pi\rpiboot.exe"
+  & "$RPiBootInstallPath\rpiboot.exe"
   # $rpibootProcess = Get-Process -Name "rpiboot" -ErrorAction SilentlyContinue
   # Wait-Process -Id $rpibootProcess.Id -ErrorAction SilentlyContinue
 }
 
 function ManualSteps-Preamble {
-  [console]::beep(640, 200)
-  [console]::beep(840, 200)
-  [console]::beep(940, 200)
+  if (!$Mute) {
+    [console]::beep(640, 200)
+    [console]::beep(840, 200)
+    [console]::beep(940, 200)
+  }
+  
 
   Write-Host "Seat " -ForegroundColor Yellow -NoNewline
   Write-Host "compute module into TPi node # 1"
@@ -157,9 +188,11 @@ function ManualSteps-Postamble {
   Start-Sleep -Seconds 2
   Write-Host "Re-run script if you have more modules to flash ⚡"
 
-  [console]::beep(940, 200)
-  [console]::beep(840, 200)
-  [console]::beep(640, 200)
+  if (!$Mute) {
+    [console]::beep(940, 200)
+    [console]::beep(840, 200)
+    [console]::beep(640, 200)
+  }
 }
 
 function Image-Device {
@@ -180,7 +213,7 @@ function Eject-UsbDrive {
 }
 
 # ------------- Where it runs
-# Download required programs
+$WorkingDir = (Get-Location).Path
 
 ManualSteps-Preamble
 Prepare-Device
