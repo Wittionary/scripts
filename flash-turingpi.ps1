@@ -27,13 +27,13 @@ param (
     $UserdataFilepath = "D:\user-data",
 
     [ValidateScript({Test-Path $_})]
-    $RPiImagerInstallPath = "C:\Program Files (x86)\Raspberry Pi Imager",
+    $RPiImagerInstallPath = "${env:ProgramFiles(x86)}\Raspberry Pi Imager",
 
     [ValidateScript({Test-Path $_})]
-    $RPiBootInstallPath = "C:\Program Files (x86)\Raspberry Pi",
+    $RPiBootInstallPath = "${env:ProgramFiles(x86)}\Raspberry Pi",
 
     [ValidateScript({Test-Path $_})]
-    $ImagePath = "C:\Users\qwert\Downloads\hypriotos-rpi-v1.12.3.img\hypriotos-rpi-v1.12.3.img",
+    $ImagePath = "$env:USERPROFILE\Downloads\hypriotos-rpi-v1.12.3.img\hypriotos-rpi-v1.12.3.img",
     $DestinationDrive = "\\.\PhysicalDrive1",
 
     [switch]
