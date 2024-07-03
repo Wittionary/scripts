@@ -1,3 +1,7 @@
+# DESCRIPTION:
+# Transform a CSV export of Azure's "Microsoft Defender for Cloud" recommendations
+# into something more comprehensible from a user perspective
+
 param (
     [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true)]
     $CsvFile,
