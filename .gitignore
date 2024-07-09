@@ -1,3 +1,5 @@
 # Things that ain't anonymized/ready for 'primetime'
 git-ignore/*
 accelo.json
+
+**/__pycache__/*
